@@ -24,10 +24,8 @@ class User(db.Model):
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref=db.backref('tasks', lazy='dynamic'))
-
     title = db.Column(db.String(100))
     content = db.Column(db.String(500))
     done = db.Column(db.Boolean(), default=False)
