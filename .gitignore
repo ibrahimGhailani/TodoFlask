@@ -9,6 +9,12 @@ __pycache__/
 # idea
 .idea/
 
+.DS_STORE
+
+# app specific
+images/
+app.db
+
 # Distribution / packaging
 .Python
 env/
