@@ -1,0 +1,7 @@
+flask
+SQLAlchemy
+Flask-SQLAlchemy
+Flask-HTTPAuth
+passlib
+itsdangerous
+Werkzeug
