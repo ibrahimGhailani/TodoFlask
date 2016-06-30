@@ -104,22 +104,24 @@ def allowed_extension(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_IMAGE_EXTENSION']
 
 
-@app.route("/upload", methods=['POST'])
+@app.route("/upload/<upload_id>", methods=['POST'])
 @auth.login_required
-def upload_image():
+def upload_image(upload_id):
     if 'file' not in request.files:
         return bad_request("No file part")
     image_file = request.files['file']
     if image_file.filename == '':
         return bad_request('No selected file')
+    image = models.Image.query.filter_by(id=upload_id).first()
+    if image is None:
+        return bad_request('id not found')
     if image_file and allowed_extension(image_file.filename):
         filename = secure_filename(image_file.filename)
         filename = str(uuid.uuid4()) + "." + filename.rsplit('.', 1)[1]
         image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        image = models.Image(url=filename)
-        db.session.add(image)
+        image.url = filename
         db.session.commit()
-        return jsonify(image.to_dict()), 201
+        return jsonify(image.to_dict()), 200
     else:
         print "Extension not allowed"
         return bad_request()
@@ -131,20 +133,16 @@ def uploaded_file(filename):
                                filename)
 
 
-@app.route('/upload/<upload_id>', methods=["POST"])
-def update_image_information(upload_id):
-    image = models.Image.query.filter_by(id=upload_id).first()
-    if image is not None:
-        json = request.get_json()
-        if 'caption' in json:
-            image.caption = json.get('caption')
-            image.task_id = upload_id
-            db.session.commit()
-            return jsonify(image.to_dict()), 200
-        else:
-            return bad_request("caption missing")
+@app.route('/upload', methods=["POST"])
+def update_image_information():
+    json = request.get_json()
+    if 'caption' in json and 'task_id' in json:
+        image = models.Image(caption=json.get('caption'), task_id=json.get('task_id'))
+        db.session.add(image)
+        db.session.commit()
+        return jsonify(image.to_dict()), 201
     else:
-        return bad_request("id not found")
+        return bad_request("missing parameters")
 
 
 '''

@@ -82,13 +82,14 @@ class Image(db.Model):
     caption = db.Column(db.String(500))
     url = db.Column(db.String(300))
 
-    def __init__(self, url):
-        self.url = url
+    def __init__(self, caption, task_id):
+        self.caption = caption
+        self.task_id = task_id
 
     def to_dict(self):
         return {
             "id": self.id,
-            "task": self.task_id,
+            "task_id": self.task_id,
             "caption": self.caption,
             "url": self.url
         }
