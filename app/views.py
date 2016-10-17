@@ -34,7 +34,7 @@ def update_task(task_id):
             db.session.commit()
             return jsonify(t.to_dict()), 200
         else:
-            return not_found("Not found")
+            return not_found()
     except Exception, e:
         print e.message
         abort(400)
@@ -142,7 +142,7 @@ def update_image_information():
         db.session.commit()
         return jsonify(image.to_dict()), 201
     else:
-        return bad_request("missing parameters")
+        return bad_request("missing parameters", 4002)
 
 
 '''
@@ -155,14 +155,17 @@ def create_user():
     user_json = request.get_json()
     if "username" in user_json and "email" in user_json and "password" in user_json:
         if models.User.query.filter_by(username=user_json.get("username")).first() is None:
-            u = models.User(username=user_json.get("username"),
-                            email=user_json.get("email"))
-            u.hash_password(user_json.get("password"))
-            db.session.add(u)
-            db.session.commit()
-            return jsonify(u.to_dict()), 201
+            if models.User.query.filter_by(email=user_json.get("email")).first() is None:
+                u = models.User(username=user_json.get("username"),
+                                email=user_json.get("email"))
+                u.hash_password(user_json.get("password"))
+                db.session.add(u)
+                db.session.commit()
+                return jsonify(u.to_dict()), 201
+            else:
+                return bad_request("Email exists", 4003)
         else:
-            return bad_request("Username exists")
+            return bad_request("Username exists", 4001)
     else:
         abort(400)
 
@@ -170,6 +173,12 @@ def create_user():
 '''
     Auth
 '''
+
+
+@app.route('/login')
+@auth.login_required
+def login():
+    return jsonify({'login': True})
 
 
 @app.route('/api/token')
@@ -208,15 +217,16 @@ def get_users():
 
 
 @app.errorhandler(404)
-def not_found(error="Not found"):
-    return jsonify({"message": error}), 404
+def not_found():
+    return jsonify({"message": "Not found"}), 404
 
 
 @app.errorhandler(401)
-def unauthorized(error="Unauthorized"):
-    return jsonify({"message": error}), 401
+@auth.error_handler
+def unauthorized():
+    return jsonify({"message": "Unauthorized access"}), 401
 
 
-# @app.errorhandler(400)
-def bad_request(error="Bad request"):
-    return jsonify({"message": error}), 400
+@app.errorhandler(400)
+def bad_request(msg="Bad request", code=400):
+    return jsonify({"message": msg, "code": code}), 400
