@@ -6,7 +6,7 @@
 Using pip:
 
 ​```
-    pip install -r requirments.txt
+    pip install -r requirements.txt
 ​```
 
 ## Run
@@ -14,14 +14,14 @@ Using pip:
     python run.py
 ​```
 
-to be continued
 
-
-Codes and errors
+## Codes and errors
 
 | Code | Error              |
 | ---- | ------------------ |
 | 4001 | Username Exist     |
 | 4003 | Email Exists       |
 | 4002 | Missing Parameters |
+| 4004 | Task Not Found     |
+
 

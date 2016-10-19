@@ -34,7 +34,7 @@ def update_task(task_id):
             db.session.commit()
             return jsonify(t.to_dict()), 200
         else:
-            return not_found()
+            return bad_request("Task Not Found", 4004)
     except Exception, e:
         print e.message
         abort(400)
@@ -68,10 +68,9 @@ def delete_task(task_id):
             db.session.commit()
             return jsonify({"message": "Task removed"}), 200
         else:
-            return not_found()
-    except Exception, e:
-        print e.message
-        abort(400)
+            return bad_request("Task Not Found", 4004)
+    except Exception:
+        return bad_request()
 
 
 @app.route('/task/<int:task_id>', methods=['GET'])
@@ -81,7 +80,7 @@ def get_task(task_id):
     if result is not None:
         return jsonify(result.to_dict())
     else:
-        abort(404)
+        return bad_request("Task not found", 4004)
 
 
 @app.route("/task", methods=['GET'])
@@ -167,7 +166,7 @@ def create_user():
         else:
             return bad_request("Username exists", 4001)
     else:
-        abort(400)
+        return bad_request()
 
 
 '''
