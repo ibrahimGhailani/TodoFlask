@@ -216,14 +216,14 @@ def get_users():
 
 
 @app.errorhandler(404)
-def not_found(error=""):
-    return jsonify({"message": "Not found"}), 404
+def not_found(error="", code=404):
+    return jsonify({"message": "Not found", "code": code}), 404
 
 
 @app.errorhandler(401)
 @auth.error_handler
-def unauthorized(error=""):
-    return jsonify({"message": "Unauthorized access"}), 401
+def unauthorized(error="", code=401):
+    return jsonify({"message": "Unauthorized access", "code": code}), 401
 
 
 @app.errorhandler(400)
